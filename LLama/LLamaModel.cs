@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.IO;
 using LLama.Common;
+using Microsoft.Extensions.Logging;
 
 namespace LLama
 {
@@ -16,7 +17,7 @@ namespace LLama
     public class LLamaModel: IDisposable
     {
         // TODO: expose more properties.
-        ILLamaLogger? _logger;
+        ILogger<LLamaModel>? _logger;
         Encoding _encoding;
         SafeLLamaContextHandle _ctx;
         public int ContextSize { get; }
@@ -24,12 +25,12 @@ namespace LLama
         public SafeLLamaContextHandle NativeHandle => _ctx;
         public Encoding Encoding => _encoding;
 
-        public LLamaModel(ModelParams Params, string encoding = "UTF-8", ILLamaLogger? logger = null)
+        public LLamaModel(ModelParams Params, string encoding = "UTF-8", ILogger<LLamaModel>? logger = null)
         {
             _logger = logger;
             this.Params = Params;
             _encoding = Encoding.GetEncoding(encoding);
-            _logger?.Log(nameof(LLamaModel), $"Initializing LLama model with params: {this.Params}", ILLamaLogger.LogLevel.Info);
+            _logger?.LogInformation("Initializing LLama model with params: {this.Params}");
             _ctx = Utils.InitLLamaContextFromModelParams(this.Params);
             ContextSize = NativeApi.llama_n_ctx(_ctx);
         }
@@ -209,7 +210,7 @@ namespace LLama
 
                 if(Utils.Eval(_ctx, tokens, i, n_eval, pastTokensCount, Params.Threads) != 0)
                 {
-                    _logger?.Log(nameof(LLamaModel), "Failed to eval.", ILLamaLogger.LogLevel.Error);
+                    _logger?.LogError("Failed to eval.");
                     throw new RuntimeError("Failed to eval.");
                 }
 
