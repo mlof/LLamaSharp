@@ -1,6 +1,4 @@
 using Cake.Frosting;
-using Llama.Build.Tasks.Cmake.Msvc;
-using Llama.Build.Tasks.Git;
 
 namespace Llama.Build.Tasks;
 

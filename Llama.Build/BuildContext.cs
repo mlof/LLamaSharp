@@ -21,7 +21,7 @@ public class BuildContext : FrostingContext
         LibPath = RepositoryRoot.Combine("lib");
         TmpDir = RepositoryRoot.Combine("tmp");
         RuntimeDirectory = RepositoryRoot.Combine("runtime");
-        LlamaCppCommitSha = context.Argument("llama-cpp-commit-sha", "602c748863e15270d80d74aa2c3bf86ab8139e07");
+        LlamaCppCommitSha = context.Argument("llama-cpp-commit-sha", "7e4ea5beff567f53be92f75f9089e6f11fa5dabd");
         LLamaSharpDirectory = RepositoryRoot.Combine("LLamaSharp");
         LlamaSharpTestDirectory = RepositoryRoot.Combine("LLamaSharp.Tests");
         SolutionPath = RepositoryRoot.CombineWithFilePath("LLamaSharp.sln");

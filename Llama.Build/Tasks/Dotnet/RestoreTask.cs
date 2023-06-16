@@ -1,8 +1,5 @@
-using Cake.Common.IO;
 using Cake.Common.Tools.DotNet;
 using Cake.Common.Tools.DotNet.Restore;
-using Cake.Core.Diagnostics;
-using Cake.Core.IO;
 using Cake.Frosting;
 
 namespace Llama.Build.Tasks.Dotnet;
