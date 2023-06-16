@@ -9,6 +9,8 @@ using Llama.Build.Extensions;
 namespace Llama.Build.Tasks.Cmake.Msvc;
 
 [TaskName("Cmake.Msvc.Configure")]
+[IsDependentOn(typeof(CleanTask))]
+[IsDependentOn(typeof(Git.CloneTask))]
 public sealed class ConfigureTask : FrostingTask<BuildContext>
 {
     public override void Run(BuildContext context)

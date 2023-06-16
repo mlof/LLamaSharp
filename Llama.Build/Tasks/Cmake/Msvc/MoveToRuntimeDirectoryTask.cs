@@ -6,7 +6,7 @@ using Llama.Build.Configuration;
 namespace Llama.Build.Tasks.Cmake.Msvc;
 
 [TaskName("Cmake.Msvc.MoveToRuntimeDirectory")]
-
+[TaskDescription("Moves the C++ build output to the runtime directory, so it can be used by the application")]
 [IsDependentOn(typeof(BuildTask))]
 public sealed class MoveToRuntimeDirectoryTask : FrostingTask<BuildContext>
 {

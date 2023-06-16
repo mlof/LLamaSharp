@@ -6,6 +6,7 @@ using Cake.Frosting;
 namespace Llama.Build.Tasks;
 
 [TaskName("Clean")]
+[TaskDescription("Cleans the build directories")]
 public sealed class CleanTask : FrostingTask<BuildContext>
 {
     public override void Run(BuildContext context)

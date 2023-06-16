@@ -7,6 +7,7 @@ using LibGit2Sharp;
 namespace Llama.Build.Tasks.Git;
 
 [TaskName("Git.Clone")]
+[TaskDescription("Downloads the LlamaCpp repository and checks out the correct commit")]
 public sealed class CloneTask : FrostingTask<BuildContext>
 {
     public override void Run(BuildContext context)

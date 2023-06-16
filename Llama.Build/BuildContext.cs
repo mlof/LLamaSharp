@@ -17,20 +17,25 @@ public class BuildContext : FrostingContext
     public BuildContext(ICakeContext context)
         : base(context)
     {
+        // paths
         RepositoryRoot = GetRepositoryRoot(context);
         LibPath = RepositoryRoot.Combine("lib");
         TmpDir = RepositoryRoot.Combine("tmp");
         RuntimeDirectory = RepositoryRoot.Combine("runtime");
-        LlamaCppCommitSha = context.Argument("llama-cpp-commit-sha", "7e4ea5beff567f53be92f75f9089e6f11fa5dabd");
         LLamaSharpDirectory = RepositoryRoot.Combine("LLamaSharp");
         LlamaSharpTestDirectory = RepositoryRoot.Combine("LLamaSharp.Tests");
         SolutionPath = RepositoryRoot.CombineWithFilePath("LLamaSharp.sln");
+        ModelDirectory = RepositoryRoot.Combine("models");
+
+        // arguments
+        LlamaCppCommitSha = context.Argument("llama-cpp-commit-sha", "7e4ea5beff567f53be92f75f9089e6f11fa5dabd");
         MsvcGenerator = context.Argument("msvc-generator", "Visual Studio 17 2022");
         BuildConfiguration = context.Argument("build-configuration", "Release");
-        ModelDirectory = new DirectoryPath("D:\\LLM");
+
+        // settings
         BuildSettings = new List<BuildSettings>
         {
-            new MsvcBuildSettings()
+            new MsvcBuildSettings
             {
                 FriendlyName = "Bells-and-whistles",
                 Platform = "X64",
@@ -38,12 +43,7 @@ public class BuildContext : FrostingContext
                     BlasType.CuBlas,
                 EnableKQuants = true,
                 Avx512Support = Avx512Support.Avx512 | Avx512Support.Vbmi | Avx512Support.Vnni
-            },
-            /*new MsvcBuildSettings()
-            {
-                Platform = "X64",
-                BlasType = BlasType.CuBlas,
-            }*/
+            }
         };
     }
 
