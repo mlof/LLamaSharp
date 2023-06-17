@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace LLama.Abstractions
+namespace LLama.Transformations.Abstractions
 {
     /// <summary>
     /// Transform history to plain text and vice versa.
@@ -16,7 +16,7 @@ namespace LLama.Abstractions
         /// <param name="history">The ChatHistory instance</param>
         /// <returns></returns>
         string HistoryToText(ChatHistory history);
-        
+
         /// <summary>
         /// Converts plain text to a ChatHistory instance.
         /// </summary>

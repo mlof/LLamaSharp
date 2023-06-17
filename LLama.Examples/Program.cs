@@ -1,6 +1,7 @@
 ﻿using LLama;
 using LLama.Common;
 using LLama.Examples;
+using LLama.Transformations;
 
 Console.WriteLine("======================================================================================================");
 
@@ -20,7 +21,7 @@ Console.WriteLine();
 
     InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5)));
 
-    ChatSession session = new ChatSession(ex).WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "User:", "Bob:" }));
+    ChatSession session = new ChatSession(ex).WithOutputTransform(new KeywordTextOutputStreamTransform(new string[] { "User:", "Bob:" }));
 
     while (prompt != "skip")
     {
@@ -35,7 +36,7 @@ Console.WriteLine();
             Console.WriteLine("Saved session!");
             ex.Model.Dispose();
             ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5)));
-            session = new ChatSession(ex).WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "User:", "Bob:" }));
+            session = new ChatSession(ex).WithOutputTransform(new KeywordTextOutputStreamTransform(new string[] { "User:", "Bob:" }));
             session.LoadSession("./SessionState");
             Console.WriteLine("Loaded session!");
             prompt = Console.ReadLine();

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LLama.Abstractions
+namespace LLama.Transformations.Abstractions
 {
     /// <summary>
     /// Takes a stream of tokens and transforms them.
