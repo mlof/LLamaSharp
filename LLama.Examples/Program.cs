@@ -12,16 +12,6 @@ Console.WriteLine("=============================================================
 
 Console.WriteLine();
 
-Console.WriteLine("Please choose the version you want to test: ");
-Console.WriteLine("0. old version (for v0.3.0 or earlier version)");
-Console.WriteLine("1. new version (for versions after v0.4.0)");
-
-Console.Write("\nYour Choice: ");
-int version = int.Parse(Console.ReadLine());
-Console.WriteLine();
-
-if(version == 1)
-{
     Console.WriteLine("The examples for new versions are under working now. We'll soon update the examples." +
         " Thank you for your support!");
     string modelPath = "D:\\development\\llama\\weights\\wizard-vicuna-13B.ggmlv3.q4_1.bin";
@@ -80,8 +70,3 @@ if(version == 1)
     //        runner.Run(input);
     //    }
     //}
-}
-else
-{
-    LLama.Examples.Old.OldTestRunner.Run();
-}

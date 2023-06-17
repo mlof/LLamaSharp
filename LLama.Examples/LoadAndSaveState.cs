@@ -1,22 +1,15 @@
 ﻿using LLama.Common;
-using LLama.OldVersion;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace LLama.Examples.NewVersion
+namespace LLama.Examples
 {
     public class SaveAndLoadState : IDisposable
     {
-        InteractiveExecutor _executor;
-        string _prompt;
+        private InteractiveExecutor _executor;
+
         public SaveAndLoadState(string modelPath, string prompt)
         {
-            _prompt = prompt;
             _executor = new InteractiveExecutor(new LLamaModel(new ModelParams(modelPath: modelPath)));
-            foreach (var text in _executor.Infer(_prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "user:" } }))
+            foreach (var text in _executor.Infer(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "user:" } }))
             {
                 Console.Write(text);
             }

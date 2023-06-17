@@ -1,18 +1,19 @@
-﻿using LLama.OldVersion;
+﻿using LLama.Common;
 using LLama.WebAPI.Models;
 
 namespace LLama.WebAPI.Services;
 
 public class ChatService
 {
-    private readonly ChatSession<LLamaModel> _session;
+    private readonly ChatSession _session;
 
     public ChatService()
     {
-        LLamaModel model = new(new LLamaParams(model: @"ggml-model-q4_0.bin", n_ctx: 512, interactive: true, repeat_penalty: 1.0f, verbose_prompt: false));
-        _session = new ChatSession<LLamaModel>(model)
-            .WithPromptFile(@"Assets\chat-with-bob.txt")
-            .WithAntiprompt(new string[] { "User:" });
+        // new LLamaParams(model: @"", n_ctx: 512, interactive: true, repeat_penalty: 1.0f, verbose_prompt: false)
+        var modelParams = new ModelParams("ggml-model-q4_0.bin");
+        LLamaModel model = new LLamaModel(modelParams);
+        var executor = new InteractiveExecutor(model);
+        _session = new ChatSession(executor);
     }
 
     public string Send(SendMessageInput input)

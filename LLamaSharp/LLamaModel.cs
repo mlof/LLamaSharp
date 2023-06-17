@@ -1,6 +1,5 @@
 ﻿using LLama.Exceptions;
 using LLama.Native;
-using LLama.OldVersion;
 using LLama.Extensions;
 using System;
 using System.Collections.Generic;
