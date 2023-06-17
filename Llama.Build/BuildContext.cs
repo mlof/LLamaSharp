@@ -31,7 +31,7 @@ namespace Llama.Build
             LlamaCppCommitSha = context.Argument("llama-cpp-commit-sha", "7e4ea5beff567f53be92f75f9089e6f11fa5dabd");
             MsvcGenerator = context.Argument("msvc-generator", "Visual Studio 17 2022");
             BuildConfiguration = context.Argument("build-configuration", "Release");
-
+            OpenClVersion = context.Argument("opencl-version", "2023.04.17");
             // settings
             BuildSettings = new List<BuildSettings>
             {
@@ -69,6 +69,7 @@ namespace Llama.Build
         public string BuildConfiguration { get; init; }
         public DirectoryPath RuntimeDirectory { get; init; }
         public DirectoryPath ModelDirectory { get; set; }
+        public string OpenClVersion { get; set; }
 
         private static DirectoryPath GetRepositoryRoot(ICakeContext context)
         {

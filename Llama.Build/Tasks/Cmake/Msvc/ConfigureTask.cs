@@ -5,6 +5,7 @@ using Cake.Core.IO;
 using Cake.Frosting;
 using Llama.Build.Configuration;
 using Llama.Build.Extensions;
+using Llama.Build.Tasks.Dependencies;
 using Llama.Build.Tasks.Git;
 
 namespace Llama.Build.Tasks.Cmake.Msvc
@@ -12,6 +13,7 @@ namespace Llama.Build.Tasks.Cmake.Msvc
     [TaskName("Cmake.Msvc.Configure")]
     [IsDependentOn(typeof(CleanTask))]
     [IsDependentOn(typeof(CloneTask))]
+    [IsDependentOn(typeof(DownloadClBlastTask))]
     public sealed class ConfigureTask : FrostingTask<BuildContext>
     {
         public override void Run(BuildContext context)

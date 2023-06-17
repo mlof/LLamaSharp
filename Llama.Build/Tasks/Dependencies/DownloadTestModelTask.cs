@@ -5,6 +5,27 @@ using Cake.Frosting;
 
 namespace Llama.Build.Tasks.Dependencies
 {
+    [TaskName("Dependencies.ClBlast")]
+    public class DownloadClBlastTask : FrostingTask<BuildContext>
+    {
+        public override void Run(BuildContext context)
+        {
+            var openClVersion = context.OpenClVersion;
+            var url =
+                $"https://github.com/KhronosGroup/OpenCL-SDK/releases/download/v{openClVersion}/OpenCL-SDK-v{openClVersion}-Win-x64.zip";
+
+            var outputDirectory = context.TmpDir.Combine("OpenCl").Combine(openClVersion);
+            context.EnsureDirectoryExists(outputDirectory);
+            var outputPath = outputDirectory
+                .CombineWithFilePath("opencl.zip");
+            context.DownloadFile(url, outputPath.FullPath, new DownloadFileSettings()
+            {
+
+            });
+
+            context.Unzip(outputPath.FullPath, context.LibPath.Combine("OpenCl").FullPath);
+        }
+    } 
     [TaskName("Dependencies.TestModel")]
     [IsDependeeOf(typeof(InstallDependenciesTask))]
     public class DownloadTestModelTask : FrostingTask<BuildContext>
