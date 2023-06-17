@@ -24,7 +24,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
+    <ProjectReference Include="..\LLamaSharp\LLamaSharp.csproj" />
   </ItemGroup>
 
+    <ItemGroup>
+        <None Include="../runtime/**/llama.dll" Visible="false">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libllama.dll</Link>
+        </None>
+
+    </ItemGroup>
 </Project>
