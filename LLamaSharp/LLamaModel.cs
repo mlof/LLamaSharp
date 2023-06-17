@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.IO;
 using LLama.Common;
-using LLama.Logging;
+using LLama.Logging.Abstractions;
 
 namespace LLama
 {

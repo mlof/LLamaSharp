@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using System.Threading;
 using LLama.Enumerations;
-using LLama.Logging;
+using LLama.Logging.Abstractions;
 
 namespace LLama
 {

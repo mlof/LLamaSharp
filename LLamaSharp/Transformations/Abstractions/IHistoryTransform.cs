@@ -20,6 +20,6 @@ namespace LLama.Transformations.Abstractions
         /// <param name="role">The role for the author.</param>
         /// <param name="text">The chat history as plain text.</param>
         /// <returns>The updated history.</returns>
-        Common.ChatHistory.ChatHistory TextToHistory(AuthorRole role, string text);
+        ChatHistory TextToHistory(AuthorRole role, string text);
     }
 }

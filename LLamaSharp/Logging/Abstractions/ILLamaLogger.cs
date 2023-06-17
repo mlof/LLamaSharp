@@ -1,4 +1,4 @@
-﻿namespace LLama.Logging;
+﻿namespace LLama.Logging.Abstractions;
 
 public interface ILLamaLogger
 {

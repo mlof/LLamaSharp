@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using LLama.Common;
+using LLama.Common.ChatHistory;
 using LLama.Transformations.Abstractions;
 
 namespace LLama.Transformations
@@ -32,7 +33,7 @@ namespace LLama.Transformations
                 _isInstructMode = isInstructMode;
             }
 
-            public virtual string HistoryToText(Common.ChatHistory.ChatHistory history)
+            public virtual string HistoryToText(ChatHistory history)
             {
                 StringBuilder sb = new();
                 foreach (var message in history.Messages)
@@ -57,9 +58,9 @@ namespace LLama.Transformations
                 return sb.ToString();
             }
 
-            public virtual Common.ChatHistory.ChatHistory TextToHistory(AuthorRole role, string text)
+            public virtual ChatHistory TextToHistory(AuthorRole role, string text)
             {
-                Common.ChatHistory.ChatHistory history = new ChatHistory.ChatHistory();
+                ChatHistory history = new ChatHistory();
                 history.AddMessage(role, TrimNamesFromText(text, role));
                 return history;
             }

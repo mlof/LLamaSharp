@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using LLama.Logging;
-using static LLama.Logging.ILLamaLogger;
+using LLama.Logging.Abstractions;
+using static LLama.Logging.Abstractions.ILLamaLogger;
 
-namespace LLama.Common;
+namespace LLama.Logging;
 
 /// <summary>
 /// The default logger of LLamaSharp. On default it write to console. User methods of `LLamaLogger.Default` to change the behavior.
@@ -136,8 +136,8 @@ public sealed class LLamaDefaultLogger : ILLamaLogger
 
     private string MessageFormat(string level, string message)
     {
-        DateTime now = DateTime.Now;
-        string formattedDate = now.ToString("yyyy.MM.dd HH:mm:ss");
+        var now = DateTime.Now;
+        var formattedDate = now.ToString("yyyy.MM.dd HH:mm:ss");
         return $"[{formattedDate}][{level}]: {message}";
     }
 }
