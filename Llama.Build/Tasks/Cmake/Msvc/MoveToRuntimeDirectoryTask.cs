@@ -1,3 +1,4 @@
+﻿using Cake.Common;
 using Cake.Common.IO;
 using Cake.Core.Diagnostics;
 using Cake.Frosting;
@@ -35,6 +36,10 @@ namespace Llama.Build.Tasks.Cmake.Msvc
             context.Log.Information($"Moving {sourceDirectory.FullPath} to {runtimeDirectory.FullPath}");
 
             context.CopyDirectory(sourceDirectory, runtimeDirectory);
+        }
+        public override bool ShouldRun(BuildContext context)
+        {
+            return context.IsRunningOnWindows();
         }
     }
 }

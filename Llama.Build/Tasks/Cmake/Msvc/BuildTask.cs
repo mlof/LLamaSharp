@@ -39,5 +39,10 @@ namespace Llama.Build.Tasks.Cmake.Msvc
                 throw new CakeException("Cmake build failed");
             }
         }
+
+        public override bool ShouldRun(BuildContext context)
+        {
+            return context.IsRunningOnWindows();
+        }
     }
 }

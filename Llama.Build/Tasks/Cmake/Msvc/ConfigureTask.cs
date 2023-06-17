@@ -44,5 +44,9 @@ namespace Llama.Build.Tasks.Cmake.Msvc
 
             context.StartProcess("cmake", new ProcessSettings { Arguments = processParameterBuilder.Render() });
         }
+        public override bool ShouldRun(BuildContext context)
+        {
+            return context.IsRunningOnWindows();
+        }
     }
 }
