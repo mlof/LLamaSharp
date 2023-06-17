@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Cake.Common.IO;
 using Cake.Core.Diagnostics;
 using Cake.Frosting;
@@ -41,7 +41,6 @@ namespace Llama.Build.Tasks.Git
             context.Log.Information($"Current commit: {currentCommit.Id.Sha}");
             if (currentCommit.Id.Sha == context.LlamaCppCommitSha)
             {
-                context.Log.Information("Already at the correct commit");
                 return;
             }
 
@@ -49,6 +48,23 @@ namespace Llama.Build.Tasks.Git
             context.Log.Information($"Checking out {commitId} of {repositoryName}");
             var localCommit = repository.Lookup<Commit>(commitId);
             Commands.Checkout(repository, localCommit);
+        }
+
+        public override bool ShouldRun(BuildContext context)
+        {
+            var repositoryPath = context.LibPath.Combine(context.LlamaRepositoryName);
+
+            if (!context.DirectoryExists(repositoryPath))
+            {
+                return true;
+            }
+
+            var repository = new Repository(repositoryPath.FullPath);
+
+            var currentCommit = repository.Head.Tip;
+
+            return currentCommit.Id.Sha != context.LlamaCppCommitSha;
+
         }
     }
 }
