@@ -6,21 +6,23 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using LLama.Common.ChatHistory;
+using LLama.Transformations;
 
 namespace LLama
 {
     public class ChatSession
     {
         private ILLamaExecutor _executor;
-        private ChatHistory _history;
+        private Common.ChatHistory.ChatHistory _history;
         private static readonly string _executorStateFilename = "ExecutorState.json";
         private static readonly string _modelStateFilename = "ModelState.st";
         public ILLamaExecutor Executor => _executor;
-        public ChatHistory History => _history;
+        public Common.ChatHistory.ChatHistory History => _history;
         public SessionParams Params { get; set; }
-        public IHistoryTransform HistoryTransform { get; set; } = new LLamaTransforms.DefaultHistoryTransform();
+        public IHistoryTransform HistoryTransform { get; set; } = new DefaultHistoryTransform();
         public List<ITextTransform> InputTransformPipeline { get; set; } = new();
-        public ITextStreamTransform OutputTransform = new LLamaTransforms.EmptyTextOutputStreamTransform();
+        public ITextStreamTransform OutputTransform = new EmptyTextOutputStreamTransform();
 
         public ChatSession(ILLamaExecutor executor, SessionParams? sessionParams = null)
         {
@@ -103,7 +105,7 @@ namespace LLama
         /// <param name="prompt"></param>
         /// <param name="inferenceParams"></param>
         /// <returns></returns>
-        public IEnumerable<string> Chat(ChatHistory history, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
+        public IEnumerable<string> Chat(Common.ChatHistory.ChatHistory history, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
             var prompt = HistoryTransform.HistoryToText(history);
             History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.User, prompt).Messages);
@@ -145,7 +147,7 @@ namespace LLama
         /// <param name="prompt"></param>
         /// <param name="inferenceParams"></param>
         /// <returns></returns>
-        public async IAsyncEnumerable<string> ChatAsync(ChatHistory history, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<string> ChatAsync(Common.ChatHistory.ChatHistory history, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var prompt = HistoryTransform.HistoryToText(history);
             History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.User, prompt).Messages);

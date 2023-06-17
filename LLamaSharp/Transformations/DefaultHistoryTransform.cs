@@ -32,7 +32,7 @@ namespace LLama.Transformations
                 _isInstructMode = isInstructMode;
             }
 
-            public virtual string HistoryToText(ChatHistory history)
+            public virtual string HistoryToText(Common.ChatHistory.ChatHistory history)
             {
                 StringBuilder sb = new();
                 foreach (var message in history.Messages)
@@ -57,9 +57,9 @@ namespace LLama.Transformations
                 return sb.ToString();
             }
 
-            public virtual ChatHistory TextToHistory(AuthorRole role, string text)
+            public virtual Common.ChatHistory.ChatHistory TextToHistory(AuthorRole role, string text)
             {
-                ChatHistory history = new ChatHistory();
+                Common.ChatHistory.ChatHistory history = new ChatHistory.ChatHistory();
                 history.AddMessage(role, TrimNamesFromText(text, role));
                 return history;
             }

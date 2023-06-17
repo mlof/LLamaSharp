@@ -1,8 +1,5 @@
 ﻿using LLama.Common;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
+using LLama.Common.ChatHistory;
 namespace LLama.Transformations.Abstractions
 {
     /// <summary>
@@ -23,6 +20,6 @@ namespace LLama.Transformations.Abstractions
         /// <param name="role">The role for the author.</param>
         /// <param name="text">The chat history as plain text.</param>
         /// <returns>The updated history.</returns>
-        ChatHistory TextToHistory(AuthorRole role, string text);
+        Common.ChatHistory.ChatHistory TextToHistory(AuthorRole role, string text);
     }
 }
