@@ -1,7 +1,6 @@
 using LLama.WebAPI.Models;
 using LLama.WebAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
 
 namespace LLama.WebAPI.Controllers
 {
@@ -9,8 +8,8 @@ namespace LLama.WebAPI.Controllers
     [Route("[controller]")]
     public class ChatController : ControllerBase
     {
-        private readonly ChatService _service;
         private readonly ILogger<ChatController> _logger;
+        private readonly ChatService _service;
 
         public ChatController(ILogger<ChatController> logger,
             ChatService service)

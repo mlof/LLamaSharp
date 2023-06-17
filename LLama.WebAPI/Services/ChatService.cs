@@ -1,35 +1,36 @@
 ﻿using LLama.Common;
 using LLama.WebAPI.Models;
 
-namespace LLama.WebAPI.Services;
-
-public class ChatService
+namespace LLama.WebAPI.Services
 {
-    private readonly ChatSession _session;
-
-    public ChatService()
+    public class ChatService
     {
-        // new LLamaParams(model: @"", n_ctx: 512, interactive: true, repeat_penalty: 1.0f, verbose_prompt: false)
-        var modelParams = new ModelParams("ggml-model-q4_0.bin");
-        LLamaModel model = new LLamaModel(modelParams);
-        var executor = new InteractiveExecutor(model);
-        _session = new ChatSession(executor);
-    }
+        private readonly ChatSession _session;
 
-    public string Send(SendMessageInput input)
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine(input.Text);
-
-        Console.ForegroundColor = ConsoleColor.White;
-        var outputs = _session.Chat(input.Text);
-        var result = "";
-        foreach (var output in outputs)
+        public ChatService()
         {
-            Console.Write(output);
-            result += output;
+            // new LLamaParams(model: @"", n_ctx: 512, interactive: true, repeat_penalty: 1.0f, verbose_prompt: false)
+            var modelParams = new ModelParams("ggml-model-q4_0.bin");
+            var model = new LLamaModel(modelParams);
+            var executor = new InteractiveExecutor(model);
+            _session = new ChatSession(executor);
         }
 
-        return result;
+        public string Send(SendMessageInput input)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(input.Text);
+
+            Console.ForegroundColor = ConsoleColor.White;
+            var outputs = _session.Chat(input.Text);
+            var result = "";
+            foreach (var output in outputs)
+            {
+                Console.Write(output);
+                result += output;
+            }
+
+            return result;
+        }
     }
 }

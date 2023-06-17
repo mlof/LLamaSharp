@@ -7,7 +7,6 @@ namespace LLama.Native
     {
         public ulong mem_size;
         public IntPtr mem_buffer;
-        [MarshalAs(UnmanagedType.I1)]
-        public bool no_alloc;
+        [MarshalAs(UnmanagedType.I1)] public bool no_alloc;
     }
 }

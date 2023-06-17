@@ -4,140 +4,145 @@ using System.IO;
 using LLama.Logging.Abstractions;
 using static LLama.Logging.Abstractions.ILLamaLogger;
 
-namespace LLama.Logging;
-
-/// <summary>
-/// The default logger of LLamaSharp. On default it write to console. User methods of `LLamaLogger.Default` to change the behavior.
-/// It's more recommended to inherit `ILLamaLogger` to cosutomize the behavior.
-/// </summary>
-public sealed class LLamaDefaultLogger : ILLamaLogger
+namespace LLama.Logging
 {
-    private static readonly Lazy<LLamaDefaultLogger> _instance = new Lazy<LLamaDefaultLogger>(() => new LLamaDefaultLogger());
-
-    private bool _toConsole = true;
-    private bool _toFile = false;
-
-    private FileStream? _fileStream = null;
-    private StreamWriter _fileWriter = null;
-
-    public static LLamaDefaultLogger Default => _instance.Value;
-
-    private LLamaDefaultLogger()
+    /// <summary>
+    ///     The default logger of LLamaSharp. On default it write to console. User methods of `LLamaLogger.Default` to change
+    ///     the behavior.
+    ///     It's more recommended to inherit `ILLamaLogger` to cosutomize the behavior.
+    /// </summary>
+    public sealed class LLamaDefaultLogger : ILLamaLogger
     {
+        private static readonly Lazy<LLamaDefaultLogger> _instance = new(() => new LLamaDefaultLogger());
 
-    }
+        private FileStream? _fileStream;
+        private StreamWriter _fileWriter;
 
-    public LLamaDefaultLogger EnableConsole()
-    {
-        _toConsole = true;
-        return this;
-    }
+        private bool _toConsole = true;
+        private bool _toFile;
 
-    public LLamaDefaultLogger DisableConsole()
-    {
-        _toConsole = false;
-        return this;
-    }
+        private LLamaDefaultLogger()
+        {
+        }
 
-    public LLamaDefaultLogger EnableFile(string filename, FileMode mode = FileMode.Append)
-    {
-        _fileStream = new FileStream(filename, mode, FileAccess.Write);
-        _fileWriter = new StreamWriter(_fileStream);
-        _toFile = true;
-        return this;
-    }
+        public static LLamaDefaultLogger Default => _instance.Value;
 
-    public LLamaDefaultLogger DisableFile(string filename)
-    {
-        if (_fileWriter is not null)
+        public void Log(string source, string message, LogLevel level)
         {
-            _fileWriter.Close();
-            _fileWriter = null;
+            if (level == LogLevel.Info)
+            {
+                Info(message);
+            }
+            else if (level == LogLevel.Debug)
+            {
+            }
+            else if (level == LogLevel.Warning)
+            {
+                Warn(message);
+            }
+            else if (level == LogLevel.Error)
+            {
+                Error(message);
+            }
         }
-        if (_fileStream is not null)
-        {
-            _fileStream.Close();
-            _fileStream = null;
-        }
-        _toFile = false;
-        return this;
-    }
 
-    public void Log(string source, string message, LogLevel level)
-    {
-        if (level == LogLevel.Info)
+        public LLamaDefaultLogger EnableConsole()
         {
-            Info(message);
+            _toConsole = true;
+            return this;
         }
-        else if (level == LogLevel.Debug)
-        {
 
-        }
-        else if (level == LogLevel.Warning)
+        public LLamaDefaultLogger DisableConsole()
         {
-            Warn(message);
+            _toConsole = false;
+            return this;
         }
-        else if (level == LogLevel.Error)
-        {
-            Error(message);
-        }
-    }
 
-    public void Info(string message)
-    {
-        message = MessageFormat("info", message);
-        if (_toConsole)
+        public LLamaDefaultLogger EnableFile(string filename, FileMode mode = FileMode.Append)
         {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(message);
-            Console.ResetColor();
+            _fileStream = new FileStream(filename, mode, FileAccess.Write);
+            _fileWriter = new StreamWriter(_fileStream);
+            _toFile = true;
+            return this;
         }
-        if (_toFile)
-        {
-            Debug.Assert(_fileStream is not null);
-            Debug.Assert(_fileWriter is not null);
-            _fileWriter.WriteLine(message);
-        }
-    }
 
-    public void Warn(string message)
-    {
-        message = MessageFormat("warn", message);
-        if (_toConsole)
+        public LLamaDefaultLogger DisableFile(string filename)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(message);
-            Console.ResetColor();
-        }
-        if (_toFile)
-        {
-            Debug.Assert(_fileStream is not null);
-            Debug.Assert(_fileWriter is not null);
-            _fileWriter.WriteLine(message);
-        }
-    }
+            if (_fileWriter is not null)
+            {
+                _fileWriter.Close();
+                _fileWriter = null;
+            }
 
-    public void Error(string message)
-    {
-        message = MessageFormat("error", message);
-        if (_toConsole)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(message);
-            Console.ResetColor();
-        }
-        if (_toFile)
-        {
-            Debug.Assert(_fileStream is not null);
-            Debug.Assert(_fileWriter is not null);
-            _fileWriter.WriteLine(message);
-        }
-    }
+            if (_fileStream is not null)
+            {
+                _fileStream.Close();
+                _fileStream = null;
+            }
 
-    private string MessageFormat(string level, string message)
-    {
-        var now = DateTime.Now;
-        var formattedDate = now.ToString("yyyy.MM.dd HH:mm:ss");
-        return $"[{formattedDate}][{level}]: {message}";
+            _toFile = false;
+            return this;
+        }
+
+        public void Info(string message)
+        {
+            message = MessageFormat("info", message);
+            if (_toConsole)
+            {
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine(message);
+                Console.ResetColor();
+            }
+
+            if (_toFile)
+            {
+                Debug.Assert(_fileStream is not null);
+                Debug.Assert(_fileWriter is not null);
+                _fileWriter.WriteLine(message);
+            }
+        }
+
+        public void Warn(string message)
+        {
+            message = MessageFormat("warn", message);
+            if (_toConsole)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(message);
+                Console.ResetColor();
+            }
+
+            if (_toFile)
+            {
+                Debug.Assert(_fileStream is not null);
+                Debug.Assert(_fileWriter is not null);
+                _fileWriter.WriteLine(message);
+            }
+        }
+
+        public void Error(string message)
+        {
+            message = MessageFormat("error", message);
+            if (_toConsole)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(message);
+                Console.ResetColor();
+            }
+
+            if (_toFile)
+            {
+                Debug.Assert(_fileStream is not null);
+                Debug.Assert(_fileWriter is not null);
+                _fileWriter.WriteLine(message);
+            }
+        }
+
+        private string MessageFormat(string level, string message)
+        {
+            var now = DateTime.Now;
+            var formattedDate = now.ToString("yyyy.MM.dd HH:mm:ss");
+            return $"[{formattedDate}][{level}]: {message}";
+        }
     }
 }

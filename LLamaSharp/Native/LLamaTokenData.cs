@@ -6,15 +6,17 @@ namespace LLama.Native
     public struct LLamaTokenData
     {
         /// <summary>
-        /// token id
+        ///     token id
         /// </summary>
         public int id;
+
         /// <summary>
-        /// log-odds of the token
+        ///     log-odds of the token
         /// </summary>
         public float logit;
+
         /// <summary>
-        /// probability of the token
+        ///     probability of the token
         /// </summary>
         public float p;
 

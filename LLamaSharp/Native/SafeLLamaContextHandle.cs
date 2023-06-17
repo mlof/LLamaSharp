@@ -2,7 +2,7 @@
 
 namespace LLama.Native
 {
-    public class SafeLLamaContextHandle: SafeLLamaHandleBase
+    public class SafeLLamaContextHandle : SafeLLamaHandleBase
     {
         protected SafeLLamaContextHandle()
         {

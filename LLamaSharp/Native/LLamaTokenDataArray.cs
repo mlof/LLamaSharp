@@ -8,8 +8,7 @@ namespace LLama.Native
     {
         public Memory<LLamaTokenData> data;
         public ulong size;
-        [MarshalAs(UnmanagedType.I1)]
-        public bool sorted;
+        [MarshalAs(UnmanagedType.I1)] public bool sorted;
 
         public LLamaTokenDataArray(LLamaTokenData[] data, ulong size, bool sorted)
         {

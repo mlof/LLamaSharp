@@ -1,24 +1,26 @@
-﻿using LLama.Common;
-using LLama.Native;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using LLama.Common;
 using LLama.Enumerations;
+using LLama.Native;
 
 namespace LLama.Executors.Stateful
 {
     using llama_token = Int32;
+
     public class InstructExecutor : StatefulExecutorBase
     {
-        bool _is_prompt_run = true;
-        llama_token[] _inp_pfx;
-        llama_token[] _inp_sfx;
+        private llama_token[] _inp_pfx;
+        private llama_token[] _inp_sfx;
+        private bool _is_prompt_run = true;
+
         public InstructExecutor(LLamaModel model, string inputPrefix = "\n\n### Instruction:\n\n",
             string inputSuffix = "\n\n### Response:\n\n") : base(model)
         {
-            _inp_pfx = _model.Tokenize(inputPrefix, true).ToArray();
+            _inp_pfx = _model.Tokenize(inputPrefix).ToArray();
             _inp_sfx = _model.Tokenize(inputSuffix, false).ToArray();
         }
 
@@ -45,6 +47,7 @@ namespace LLama.Executors.Stateful
                 JsonSerializer.Serialize(fs, state);
             }
         }
+
         public override void LoadState(string filename)
         {
             using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
@@ -69,13 +72,14 @@ namespace LLama.Executors.Stateful
         {
             return args.RemainedTokens != 0 || _is_prompt_run;
         }
+
         protected override void PreprocessInputs(string text, InferStateArgs args)
         {
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
                 text = " " + text;
-                _embed_inps = _model.Tokenize(text, true).ToList();
+                _embed_inps = _model.Tokenize(text).ToList();
             }
             else
             {
@@ -83,6 +87,7 @@ namespace LLama.Executors.Stateful
                 {
                     text += "\n";
                 }
+
                 _consumedTokensCount = _embed_inps.Count;
                 _embed_inps.AddRange(_inp_pfx);
 
@@ -94,7 +99,9 @@ namespace LLama.Executors.Stateful
                 args.RemainedTokens -= line_inp.Count();
             }
         }
-        protected override bool PostProcess(InferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs)
+
+        protected override bool PostProcess(InferenceParams inferenceParams, InferStateArgs args,
+            out IEnumerable<string>? extraOutputs)
         {
             extraOutputs = null;
             if (_embed_inps.Count <= _consumedTokensCount)
@@ -104,7 +111,8 @@ namespace LLama.Executors.Stateful
                     var last_output = "";
                     foreach (var id in _last_n_tokens)
                     {
-                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id), _model.Encoding);
+                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id),
+                            _model.Encoding);
                     }
 
                     foreach (var antiprompt in args.Antiprompts)
@@ -119,7 +127,7 @@ namespace LLama.Executors.Stateful
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
                 {
-                    extraOutputs = new string[] { "\n> " };
+                    extraOutputs = new[] { "\n> " };
                     return true;
                 }
             }
@@ -134,8 +142,10 @@ namespace LLama.Executors.Stateful
                 args.RemainedTokens = inferenceParams.MaxTokens;
                 args.WaitForInput = true;
             }
+
             return false;
         }
+
         protected override void InferInternal(InferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embeds.Count > 0)
@@ -160,7 +170,9 @@ namespace LLama.Executors.Stateful
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
-                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? _model.ContextSize : inferenceParams.RepeatLastTokensCount;
+                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0
+                    ? _model.ContextSize
+                    : inferenceParams.RepeatLastTokensCount;
 
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
@@ -170,10 +182,13 @@ namespace LLama.Executors.Stateful
                 }
 
                 var tokenDataArray = _model.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
-                    inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
+                    inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty,
+                    inferenceParams.PenalizeNL);
 
-                var id = _model.Sample(tokenDataArray, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
-                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP);
+                var id = _model.Sample(tokenDataArray, inferenceParams.Temperature, inferenceParams.Mirostat,
+                    inferenceParams.MirostatTau,
+                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ,
+                    inferenceParams.TypicalP);
 
                 _last_n_tokens.Enqueue(id);
 
@@ -196,6 +211,5 @@ namespace LLama.Executors.Stateful
                 }
             }
         }
-     
     }
 }

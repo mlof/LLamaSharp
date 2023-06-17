@@ -1,18 +1,18 @@
-﻿using LLama.Native;
-using System;
-using System.Text;
-using LLama.Exceptions;
+﻿using System;
 using System.Linq;
+using System.Text;
 using LLama.Common;
+using LLama.Exceptions;
+using LLama.Native;
 
 namespace LLama
 {
     public class LLamaEmbedder : IDisposable
     {
-        SafeLLamaContextHandle _ctx;
+        private readonly SafeLLamaContextHandle _ctx;
 
         /// <summary>
-        /// Warning: must ensure the original model has params.embedding = true;
+        ///     Warning: must ensure the original model has params.embedding = true;
         /// </summary>
         /// <param name="ctx"></param>
         internal LLamaEmbedder(SafeLLamaContextHandle ctx)
@@ -26,8 +26,13 @@ namespace LLama
             _ctx = Utils.InitLLamaContextFromModelParams(@params);
         }
 
+        public void Dispose()
+        {
+            _ctx.Dispose();
+        }
+
         /// <summary>
-        /// Get the embeddings of the text.
+        ///     Get the embeddings of the text.
         /// </summary>
         /// <param name="text"></param>
         /// <param name="threads">Threads used for inference.</param>
@@ -35,17 +40,20 @@ namespace LLama
         /// <param name="encoding"></param>
         /// <returns></returns>
         /// <exception cref="RuntimeError"></exception>
-        public unsafe float[] GetEmbeddings(string text, int threads = -1, bool addBos = true, string encoding = "UTF-8")
+        public unsafe float[] GetEmbeddings(string text, int threads = -1, bool addBos = true,
+            string encoding = "UTF-8")
         {
             if (threads == -1)
             {
                 threads = Math.Max(Environment.ProcessorCount / 2, 1);
             }
-            int n_past = 0;
+
+            var n_past = 0;
             if (addBos)
             {
                 text = text.Insert(0, " ");
             }
+
             var embed_inp = Utils.Tokenize(_ctx, text, addBos, Encoding.GetEncoding(encoding));
 
             // TODO(Rinne): deal with log of prompt
@@ -59,21 +67,17 @@ namespace LLama
                 }
             }
 
-            int n_embed = NativeApi.llama_n_embd(_ctx);
+            var n_embed = NativeApi.llama_n_embd(_ctx);
             var embeddings = NativeApi.llama_get_embeddings(_ctx);
             if (embeddings == null)
             {
                 return new float[0];
             }
+
             var span = new Span<float>(embeddings, n_embed);
-            float[] res = new float[n_embed];
+            var res = new float[n_embed];
             span.CopyTo(res.AsSpan());
             return res;
-        }
-
-        public void Dispose()
-        {
-            _ctx.Dispose();
         }
     }
 }

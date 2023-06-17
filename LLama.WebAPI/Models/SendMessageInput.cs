@@ -1,6 +1,7 @@
-﻿namespace LLama.WebAPI.Models;
-
-public class SendMessageInput
+﻿namespace LLama.WebAPI.Models
 {
-    public string Text { get; set; }
+    public class SendMessageInput
+    {
+        public string Text { get; set; }
+    }
 }

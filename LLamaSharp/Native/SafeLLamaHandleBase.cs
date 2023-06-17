@@ -3,15 +3,15 @@ using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
-    public abstract class SafeLLamaHandleBase: SafeHandle
+    public abstract class SafeLLamaHandleBase : SafeHandle
     {
         private protected SafeLLamaHandleBase()
-            : base(IntPtr.Zero, ownsHandle: true)
+            : base(IntPtr.Zero, true)
         {
         }
 
         private protected SafeLLamaHandleBase(IntPtr handle)
-            : base(IntPtr.Zero, ownsHandle: true)
+            : base(IntPtr.Zero, true)
         {
             SetHandle(handle);
         }
@@ -25,6 +25,8 @@ namespace LLama.Native
         public override bool IsInvalid => handle == IntPtr.Zero;
 
         public override string ToString()
-            => $"0x{handle.ToString("x16")}";
+        {
+            return $"0x{handle.ToString("x16")}";
+        }
     }
 }

@@ -7,14 +7,14 @@ namespace LLama.Tests.Transformations
 {
     public class DefaultHistoryTransformTests
     {
+        private const string History = @"User: Hello world
+System: Hello world
+";
+
         public DefaultHistoryTransform CreateInstance()
         {
             return new DefaultHistoryTransform();
         }
-
-        private const string History = @"User: Hello world
-System: Hello world
-";
 
         [Fact]
         public void Transform_HistoryToText_ReturnsExpectedFormat()

@@ -2,20 +2,19 @@ using Cake.Common.Tools.DotNet;
 using Cake.Common.Tools.DotNet.Build;
 using Cake.Frosting;
 
-namespace Llama.Build.Tasks.Dotnet;
-
-[TaskName("Dotnet.Build")]
-[IsDependentOn(typeof(RestoreTask))]
-public sealed class BuildTask : FrostingTask<BuildContext>
+namespace Llama.Build.Tasks.Dotnet
 {
-    public override void Run(BuildContext context)
+    [TaskName("Dotnet.Build")]
+    [IsDependentOn(typeof(RestoreTask))]
+    public sealed class BuildTask : FrostingTask<BuildContext>
     {
-
-        context.DotNetBuild(context.LLamaSharpDirectory.FullPath, new DotNetBuildSettings()
+        public override void Run(BuildContext context)
         {
-            Configuration = context.BuildConfiguration,
-            NoRestore = true,
-            NoIncremental = true
-        });
+            context.DotNetBuild(context.LLamaSharpDirectory.FullPath,
+                new DotNetBuildSettings
+                {
+                    Configuration = context.BuildConfiguration, NoRestore = true, NoIncremental = true
+                });
+        }
     }
 }

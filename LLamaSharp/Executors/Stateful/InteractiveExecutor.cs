@@ -1,19 +1,21 @@
-﻿using LLama.Common;
-using LLama.Native;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using LLama.Common;
 using LLama.Enumerations;
+using LLama.Native;
 
 namespace LLama.Executors.Stateful
 {
     using llama_token = Int32;
+
     public class InteractiveExecutor : StatefulExecutorBase
     {
-        bool _is_prompt_run = true;
-        llama_token[] _llama_token_newline;
+        private bool _is_prompt_run = true;
+        private llama_token[] _llama_token_newline;
+
         public InteractiveExecutor(LLamaModel model) : base(model)
         {
             _llama_token_newline = Utils.Tokenize(_model.NativeHandle, "\n", false, _model.Encoding).ToArray();
@@ -41,6 +43,7 @@ namespace LLama.Executors.Stateful
                 JsonSerializer.Serialize(fs, state);
             }
         }
+
         public override void LoadState(string filename)
         {
             using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
@@ -61,12 +64,12 @@ namespace LLama.Executors.Stateful
         }
 
         /// <summary>
-        /// Define whether to continue the loop to generate responses.
+        ///     Define whether to continue the loop to generate responses.
         /// </summary>
         /// <returns></returns>
         protected override bool GetLoopCondition(InferStateArgs args)
         {
-            return args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run;
+            return (args.RemainedTokens != 0 && !args.WaitForInput) || _is_prompt_run;
         }
 
         protected override void PreprocessInputs(string text, InferStateArgs args)
@@ -75,7 +78,7 @@ namespace LLama.Executors.Stateful
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
                 text = " " + text;
-                _embed_inps = _model.Tokenize(text, true).ToList();
+                _embed_inps = _model.Tokenize(text).ToList();
             }
             else
             {
@@ -83,6 +86,7 @@ namespace LLama.Executors.Stateful
                 {
                     text += "\n";
                 }
+
                 var line_inp = _model.Tokenize(text, false);
                 _embed_inps.AddRange(line_inp);
                 args.RemainedTokens -= line_inp.Count();
@@ -90,11 +94,12 @@ namespace LLama.Executors.Stateful
         }
 
         /// <summary>
-        /// Return whether to break the generation.
+        ///     Return whether to break the generation.
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        protected override bool PostProcess(InferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs)
+        protected override bool PostProcess(InferenceParams inferenceParams, InferStateArgs args,
+            out IEnumerable<string>? extraOutputs)
         {
             extraOutputs = null;
             if (_embed_inps.Count <= _consumedTokensCount)
@@ -104,7 +109,8 @@ namespace LLama.Executors.Stateful
                     var last_output = "";
                     foreach (var id in _last_n_tokens)
                     {
-                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id), _model.Encoding);
+                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id),
+                            _model.Encoding);
                     }
 
                     foreach (var antiprompt in args.Antiprompts)
@@ -125,7 +131,7 @@ namespace LLama.Executors.Stateful
 
             if (_embeds.Count > 0 && _embeds.Last() == NativeApi.llama_token_eos())
             {
-                extraOutputs = new string[] { " [end of text]\n" };
+                extraOutputs = new[] { " [end of text]\n" };
                 return true;
             }
 
@@ -134,6 +140,7 @@ namespace LLama.Executors.Stateful
                 args.RemainedTokens = inferenceParams.MaxTokens;
                 args.WaitForInput = true;
             }
+
             return false;
         }
 
@@ -161,7 +168,9 @@ namespace LLama.Executors.Stateful
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
-                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? _model.ContextSize : inferenceParams.RepeatLastTokensCount;
+                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0
+                    ? _model.ContextSize
+                    : inferenceParams.RepeatLastTokensCount;
 
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
@@ -171,10 +180,13 @@ namespace LLama.Executors.Stateful
                 }
 
                 var tokenDataArray = _model.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
-                    inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
+                    inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty,
+                    inferenceParams.PenalizeNL);
 
-                var id = _model.Sample(tokenDataArray, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
-                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP);
+                var id = _model.Sample(tokenDataArray, inferenceParams.Temperature, inferenceParams.Mirostat,
+                    inferenceParams.MirostatTau,
+                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ,
+                    inferenceParams.TypicalP);
 
                 _last_n_tokens.Enqueue(id);
 
@@ -207,7 +219,5 @@ namespace LLama.Executors.Stateful
                 }
             }
         }
-
-
     }
 }

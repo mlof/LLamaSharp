@@ -2,15 +2,14 @@ using Cake.Common.Tools.DotNet;
 using Cake.Common.Tools.DotNet.Restore;
 using Cake.Frosting;
 
-namespace Llama.Build.Tasks.Dotnet;
-
-[TaskName("Dotnet.Restore")]
-public sealed class RestoreTask : FrostingTask<BuildContext>
+namespace Llama.Build.Tasks.Dotnet
 {
-    public override void Run(BuildContext context)
+    [TaskName("Dotnet.Restore")]
+    public sealed class RestoreTask : FrostingTask<BuildContext>
     {
-        context.DotNetRestore(context.LLamaSharpDirectory.FullPath, new DotNetRestoreSettings()
+        public override void Run(BuildContext context)
         {
-        });
+            context.DotNetRestore(context.LLamaSharpDirectory.FullPath, new DotNetRestoreSettings());
+        }
     }
 }

@@ -1,9 +1,10 @@
-﻿namespace LLama.Common;
-
-public enum AuthorRole
+﻿namespace LLama.Common
 {
-    Unknown = -1,
-    System = 0,
-    User = 1,
-    Assistant = 2,
+    public enum AuthorRole
+    {
+        Unknown = -1,
+        System = 0,
+        User = 1,
+        Assistant = 2
+    }
 }

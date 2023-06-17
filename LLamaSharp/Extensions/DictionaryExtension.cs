@@ -9,6 +9,7 @@ namespace LLama.Extensions
             first = pair.Key;
             second = pair.Value;
         }
+
         public static void Update<T1, T2>(this Dictionary<T1, T2> dic, IDictionary<T1, T2> other)
         {
             foreach (var (key, value) in other)
@@ -16,7 +17,9 @@ namespace LLama.Extensions
                 dic[key] = value;
             }
         }
-        public static TValue GetOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey key, TValue defaultValue)
+
+        public static TValue GetOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey key,
+            TValue defaultValue)
         {
             return dic.TryGetValue(key, out var value) ? value : defaultValue;
         }

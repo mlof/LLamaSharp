@@ -1,8 +1,9 @@
-﻿namespace LLama.Common;
-
-public enum MiroStateType
+﻿namespace LLama.Common
 {
-    Disable = 0,
-    MiroState = 1,
-    MiroState2 = 2
+    public enum MiroStateType
+    {
+        Disable = 0,
+        MiroState = 1,
+        MiroState2 = 2
+    }
 }

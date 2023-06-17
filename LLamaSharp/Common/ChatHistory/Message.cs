@@ -1,22 +1,12 @@
 ﻿namespace LLama.Common.ChatHistory
 {
     /// <summary>
-    /// Chat message representation
+    ///     Chat message representation
     /// </summary>
     public class Message
     {
         /// <summary>
-        /// Role of the message author, e.g. user/assistant/system
-        /// </summary>
-        public AuthorRole AuthorRole { get; set; }
-
-        /// <summary>
-        /// Message content
-        /// </summary>
-        public string Content { get; set; }
-
-        /// <summary>
-        /// Create a new instance
+        ///     Create a new instance
         /// </summary>
         /// <param name="authorRole">Role of message author</param>
         /// <param name="content">Message content</param>
@@ -25,5 +15,15 @@
             AuthorRole = authorRole;
             Content = content;
         }
+
+        /// <summary>
+        ///     Role of the message author, e.g. user/assistant/system
+        /// </summary>
+        public AuthorRole AuthorRole { get; set; }
+
+        /// <summary>
+        ///     Message content
+        /// </summary>
+        public string Content { get; set; }
     }
 }

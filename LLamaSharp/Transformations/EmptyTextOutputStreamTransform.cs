@@ -4,7 +4,7 @@ using LLama.Transformations.Abstractions;
 namespace LLama.Transformations
 {
     /// <summary>
-    /// A no-op text input transform.
+    ///     A no-op text input transform.
     /// </summary>
     public class EmptyTextOutputStreamTransform : ITextStreamTransform
     {

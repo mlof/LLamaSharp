@@ -1,20 +1,21 @@
 using Cake.Core;
 using Cake.Core.IO;
 
-namespace Llama.Build.Extensions;
-
-public static class ProcessParameterBuilderExtensions
+namespace Llama.Build.Extensions
 {
-    public static void AppendCmakeOption(this ProcessArgumentBuilder processParameterBuilder, string optionName,
-        string optionValue)
+    public static class ProcessParameterBuilderExtensions
     {
-        processParameterBuilder.Append($"-D{optionName}={optionValue}");
-    }
+        public static void AppendCmakeOption(this ProcessArgumentBuilder processParameterBuilder, string optionName,
+            string optionValue)
+        {
+            processParameterBuilder.Append($"-D{optionName}={optionValue}");
+        }
 
-    public static void AppendCmakeOption(this ProcessArgumentBuilder processParameterBuilder, string optionName,
-        bool value)
-    {
-        var optionValue = value ? "ON" : "OFF";
-        processParameterBuilder.Append($"-D{optionName}={optionValue}");
+        public static void AppendCmakeOption(this ProcessArgumentBuilder processParameterBuilder, string optionName,
+            bool value)
+        {
+            var optionValue = value ? "ON" : "OFF";
+            processParameterBuilder.Append($"-D{optionName}={optionValue}");
+        }
     }
 }

@@ -3,23 +3,24 @@ using Cake.Core.Diagnostics;
 using Cake.Core.IO;
 using Cake.Frosting;
 
-namespace Llama.Build.Tasks;
-
-[TaskName("Clean")]
-[TaskDescription("Cleans the build directories")]
-public sealed class CleanTask : FrostingTask<BuildContext>
+namespace Llama.Build.Tasks
 {
-    public override void Run(BuildContext context)
+    [TaskName("Clean")]
+    [TaskDescription("Cleans the build directories")]
+    public sealed class CleanTask : FrostingTask<BuildContext>
     {
-        CleanDirectory(context, context.TmpDir);
-        CleanDirectory(context, context.RuntimeDirectory);
-    }
+        public override void Run(BuildContext context)
+        {
+            CleanDirectory(context, context.TmpDir);
+            CleanDirectory(context, context.RuntimeDirectory);
+        }
 
-    private void CleanDirectory(BuildContext context, DirectoryPath contextTmpDir)
-    {
-        context.Log.Information($"Cleaning {contextTmpDir.FullPath}");
+        private void CleanDirectory(BuildContext context, DirectoryPath contextTmpDir)
+        {
+            context.Log.Information($"Cleaning {contextTmpDir.FullPath}");
 
-        context.EnsureDirectoryDoesNotExist(context.TmpDir);
-        context.EnsureDirectoryExists(context.TmpDir);
+            context.EnsureDirectoryDoesNotExist(context.TmpDir);
+            context.EnsureDirectoryExists(context.TmpDir);
+        }
     }
 }

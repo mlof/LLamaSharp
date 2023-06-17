@@ -63,10 +63,7 @@ namespace Llama.Build.Tasks.Dependencies
     {
         public static void WingetInstall(this ICakeContext context, string packageName)
         {
-            context.StartProcess("winget", new ProcessSettings()
-            {
-                Arguments = "install " + packageName,
-            });
+            context.StartProcess("winget", new ProcessSettings { Arguments = "install " + packageName });
         }
     }
 }

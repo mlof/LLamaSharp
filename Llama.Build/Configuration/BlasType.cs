@@ -1,11 +1,12 @@
-namespace Llama.Build.Configuration;
-
-public enum BlasType
+﻿namespace Llama.Build.Configuration
 {
-    None,
-    OpenBlas,
-    OpenBlasIntel,
-    CuBlas,
-    CLBlast,
-    Blis
+    public enum BlasType
+    {
+        None,
+        OpenBlas,
+        OpenBlasIntel,
+        CuBlas,
+        CLBlast,
+        Blis
+    }
 }

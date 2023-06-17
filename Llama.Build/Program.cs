@@ -1,13 +1,14 @@
 using Cake.Frosting;
 
-namespace Llama.Build;
-
-public static class Program
+namespace Llama.Build
 {
-    public static int Main(string[] args)
+    public static class Program
     {
-        return new CakeHost()
-            .UseContext<BuildContext>()
-            .Run(args);
+        public static int Main(string[] args)
+        {
+            return new CakeHost()
+                .UseContext<BuildContext>()
+                .Run(args);
+        }
     }
 }

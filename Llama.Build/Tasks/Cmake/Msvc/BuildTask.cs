@@ -1,40 +1,43 @@
-using Cake.Common;
+﻿using Cake.Common;
 using Cake.Core;
 using Cake.Core.IO;
 using Cake.Frosting;
 using Llama.Build.Configuration;
 
-namespace Llama.Build.Tasks.Cmake.Msvc;
-
-[TaskName("Cmake.Msvc.Build")]
-[IsDependentOn(typeof(ConfigureTask))]
-public sealed class BuildTask : FrostingTask<BuildContext>
+namespace Llama.Build.Tasks.Cmake.Msvc
 {
-    public override void Run(BuildContext context)
+    [TaskName("Cmake.Msvc.Build")]
+    [IsDependentOn(typeof(ConfigureTask))]
+    public sealed class BuildTask : FrostingTask<BuildContext>
     {
-        foreach (var setting in context.MsvcBuildSettings)
+        public override void Run(BuildContext context)
         {
-            Run(context, setting);
+            foreach (var setting in context.MsvcBuildSettings)
+            {
+                Run(context, setting);
+            }
         }
-    }
 
-    private void Run(BuildContext context, MsvcBuildSettings setting)
-    {
-        var processParameterBuilder = new ProcessArgumentBuilder();
-
-        processParameterBuilder.Append("--build");
-        processParameterBuilder.AppendQuoted(context.LlamaBuildDirectory.Combine(setting.BuildPath).FullPath);
-        processParameterBuilder.Append("--parallel");
-        processParameterBuilder.Append("--config ");
-        processParameterBuilder.AppendQuoted(context.BuildConfiguration);
-
-
-        var process = context.StartProcess("cmake",
-            new ProcessSettings
-                { WorkingDirectory = context.LlamaBuildDirectory, Arguments = processParameterBuilder.Render() });
-        if (process != 0)
+        private void Run(BuildContext context, MsvcBuildSettings setting)
         {
-            throw new CakeException("Cmake build failed");
+            var processParameterBuilder = new ProcessArgumentBuilder();
+
+            processParameterBuilder.Append("--build");
+            processParameterBuilder.AppendQuoted(context.LlamaBuildDirectory.Combine(setting.BuildPath).FullPath);
+            processParameterBuilder.Append("--parallel");
+            processParameterBuilder.Append("--config ");
+            processParameterBuilder.AppendQuoted(context.BuildConfiguration);
+
+
+            var process = context.StartProcess("cmake",
+                new ProcessSettings
+                {
+                    WorkingDirectory = context.LlamaBuildDirectory, Arguments = processParameterBuilder.Render()
+                });
+            if (process != 0)
+            {
+                throw new CakeException("Cmake build failed");
+            }
         }
     }
 }
