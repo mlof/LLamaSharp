@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LLama.Common
+﻿namespace LLama.Common
 {
     public class SessionParams
     {

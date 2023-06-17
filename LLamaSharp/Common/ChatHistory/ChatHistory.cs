@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using LLama.Common;
 
 namespace LLama.Common.ChatHistory
 {

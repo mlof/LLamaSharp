@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LLama.Native
+﻿namespace LLama.Native
 {
     public enum LLamaFtype
     {

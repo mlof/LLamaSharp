@@ -1,6 +1,4 @@
-﻿using LLama.Common;
-
-namespace LLama.Common.ChatHistory
+﻿namespace LLama.Common.ChatHistory
 {
     /// <summary>
     /// Chat message representation
