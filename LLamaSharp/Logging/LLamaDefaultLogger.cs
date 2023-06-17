@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using static LLama.Common.ILLamaLogger;
+using LLama.Logging;
+using static LLama.Logging.ILLamaLogger;
 
 namespace LLama.Common;
 

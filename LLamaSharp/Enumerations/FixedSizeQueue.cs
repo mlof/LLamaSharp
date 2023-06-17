@@ -2,9 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace LLama.Common
+namespace LLama.Enumerations
 {
     /// <summary>
     /// A queue with fixed storage size.

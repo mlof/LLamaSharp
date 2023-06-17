@@ -1,4 +1,4 @@
-﻿namespace LLama.Common;
+﻿namespace LLama.Logging;
 
 public interface ILLamaLogger
 {
