@@ -18,13 +18,9 @@ namespace LLama.Extensions
                 dic[key] = value;
             }
         }
-        public static T2 GetOrDefault<T1, T2>(this Dictionary<T1, T2> dic, T1 key, T2 defaultValue)
+        public static TValue GetOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey key, TValue defaultValue)
         {
-            if (dic.ContainsKey(key))
-            {
-                return dic[key];
-            }
-            return defaultValue;
+            return dic.TryGetValue(key, out var value) ? value : defaultValue;
         }
     }
 }
