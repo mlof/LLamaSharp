@@ -7,12 +7,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
 using System.Threading;
 using LLama.Enumerations;
 using LLama.Logging.Abstractions;
 
-namespace LLama
+namespace LLama.Executors.Stateful
 {
     using llama_token = Int32;
     public abstract class StatefulExecutorBase : ILLamaExecutor
@@ -51,7 +50,7 @@ namespace LLama
             if (File.Exists(filename))
             {
                 _logger?.Log("LLamaExecutor", $"Attempting to load saved session from {filename}", ILLamaLogger.LogLevel.Info);
-                llama_token[] session_tokens = new llama_token[_model.ContextSize];
+                var session_tokens = new llama_token[_model.ContextSize];
                 ulong n_token_count_out = 0;
                 if (!NativeApi.llama_load_session_file(_model.NativeHandle, _pathSession, session_tokens, (ulong)_model.ContextSize, &n_token_count_out))
                 {
@@ -107,7 +106,7 @@ namespace LLama
             // if we run out of context:
             // - take the tokensToKeep first tokens from the original prompt (via n_past)
             // - take half of the last (n_ctx - tokensToKeep) tokens and recompute the logits in batches
-            int n_left = _pastTokensCount - tokensToKeep;
+            var n_left = _pastTokensCount - tokensToKeep;
 
             _pastTokensCount = Math.Max(1, tokensToKeep);
 
@@ -122,7 +121,7 @@ namespace LLama
         {
             if (_n_session_consumed < _session_tokens.Count)
             {
-                int i = 0;
+                var i = 0;
                 for (; i < _embeds.Count; i++)
                 {
                     if (_embeds[i] != _session_tokens[_n_session_consumed])
@@ -164,7 +163,7 @@ namespace LLama
                 inferenceParams = new InferenceParams();
             }
 
-            InferStateArgs args = new InferStateArgs()
+            var args = new InferStateArgs()
             {
                 Antiprompts = inferenceParams.AntiPrompts.ToList(),
                 RemainedTokens = inferenceParams.MaxTokens,
@@ -213,43 +212,5 @@ namespace LLama
             }
         }
 
-        /// <summary>
-        /// State arguments that are used in single inference
-        /// </summary>
-        protected class InferStateArgs
-        {
-            public IList<string>? Antiprompts { get; set; }
-            /// <summary>
-            /// Tokens count remained to be used. (n_remain)
-            /// </summary>
-            public int RemainedTokens { get; set; }
-            public bool ReturnValue { get; set; }
-            public bool WaitForInput { get; set; }
-            public bool NeedToSaveSession { get; set; }
-        }
-
-        public class ExecutorBaseState
-        {
-            [JsonPropertyName("n_past")]
-            public int PastTokensCount { get; set; }
-            [JsonPropertyName("n_consumed")]
-            public int ConsumedTokensCount { get; set; }
-            [JsonPropertyName("n_session_consumed")]
-            public int ConsumedSessionCount { get; set; }
-            [JsonPropertyName("n_matching_session_tokens")]
-            public int MatchingSessionTokensCount { get; set; }
-            [JsonPropertyName("path_session")]
-            public string SessionFilePath { get; set; }
-            [JsonPropertyName("embd")]
-            public List<llama_token> Embeds { get; set; }
-            [JsonPropertyName("embd_inps")]
-            public List<llama_token> EmbedInps { get; set; }
-            [JsonPropertyName("session_tokens")]
-            public List<llama_token> SessionTokens { get; set; }
-            [JsonPropertyName("last_n_tokens")]
-            public llama_token[] LastTokens { get; set; }
-            [JsonPropertyName("last_tokens_maximum_count")]
-            public int LastTokensCapacity { get; set; }
-        }
     }
 }

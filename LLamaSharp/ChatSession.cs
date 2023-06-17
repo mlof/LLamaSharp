@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading;
 using LLama.Common.ChatHistory;
 using LLama.Transformations;
+using LLama.Executors.Stateful;
+using LLama.Executors.Stateless;
 
 namespace LLama
 {

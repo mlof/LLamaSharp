@@ -5,27 +5,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using LLama.Enumerations;
 
-namespace LLama
+namespace LLama.Executors.Stateful
 {
     using llama_token = Int32;
-    public class InstructExecutor : StatefulExecutorBase
+    public class InteractiveExecutor : StatefulExecutorBase
     {
         bool _is_prompt_run = true;
-        llama_token[] _inp_pfx;
-        llama_token[] _inp_sfx;
-        public InstructExecutor(LLamaModel model, string inputPrefix = "\n\n### Instruction:\n\n",
-            string inputSuffix = "\n\n### Response:\n\n") : base(model)
+        llama_token[] _llama_token_newline;
+        public InteractiveExecutor(LLamaModel model) : base(model)
         {
-            _inp_pfx = _model.Tokenize(inputPrefix, true).ToArray();
-            _inp_sfx = _model.Tokenize(inputSuffix, false).ToArray();
+            _llama_token_newline = Utils.Tokenize(_model.NativeHandle, "\n", false, _model.Encoding).ToArray();
         }
 
         public override void SaveState(string filename)
         {
-            InstructExecutorState state = new()
+            InteractiveExecutorState state = new()
             {
                 ConsumedSessionCount = _n_session_consumed,
                 EmbedInps = _embed_inps,
@@ -33,32 +29,30 @@ namespace LLama
                 ConsumedTokensCount = _consumedTokensCount,
                 Embeds = _embeds,
                 LastTokens = _last_n_tokens.ToArray(),
-                InputPrefixTokens = _inp_pfx,
-                InputSuffixTokens = _inp_sfx,
+                LLamaNewlineTokens = _llama_token_newline,
                 MatchingSessionTokensCount = _n_matching_session_tokens,
                 PastTokensCount = _pastTokensCount,
                 SessionFilePath = _pathSession,
                 SessionTokens = _session_tokens,
                 LastTokensCapacity = _last_n_tokens.Capacity
             };
-            using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
+            using (var fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
             {
-                JsonSerializer.Serialize<InstructExecutorState>(fs, state);
+                JsonSerializer.Serialize(fs, state);
             }
         }
         public override void LoadState(string filename)
         {
-            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
-                var state = JsonSerializer.Deserialize<InstructExecutorState>(fs);
+                var state = JsonSerializer.Deserialize<InteractiveExecutorState>(fs);
                 _n_session_consumed = state.ConsumedSessionCount;
                 _embed_inps = state.EmbedInps;
                 _is_prompt_run = state.IsPromptRun;
                 _consumedTokensCount = state.ConsumedTokensCount;
                 _embeds = state.Embeds;
                 _last_n_tokens = new FixedSizeQueue<llama_token>(state.LastTokensCapacity, state.LastTokens);
-                _inp_pfx = state.InputPrefixTokens;
-                _inp_sfx = state.InputSuffixTokens;
+                _llama_token_newline = state.LLamaNewlineTokens;
                 _n_matching_session_tokens = state.MatchingSessionTokensCount;
                 _pastTokensCount = state.PastTokensCount;
                 _pathSession = state.SessionFilePath;
@@ -66,10 +60,15 @@ namespace LLama
             }
         }
 
+        /// <summary>
+        /// Define whether to continue the loop to generate responses.
+        /// </summary>
+        /// <returns></returns>
         protected override bool GetLoopCondition(InferStateArgs args)
         {
-            return args.RemainedTokens != 0 || _is_prompt_run;
+            return args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run;
         }
+
         protected override void PreprocessInputs(string text, InferStateArgs args)
         {
             if (_is_prompt_run)
@@ -84,17 +83,17 @@ namespace LLama
                 {
                     text += "\n";
                 }
-                _consumedTokensCount = _embed_inps.Count;
-                _embed_inps.AddRange(_inp_pfx);
-
                 var line_inp = _model.Tokenize(text, false);
                 _embed_inps.AddRange(line_inp);
-
-                _embed_inps.AddRange(_inp_sfx);
-
                 args.RemainedTokens -= line_inp.Count();
             }
         }
+
+        /// <summary>
+        /// Return whether to break the generation.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         protected override bool PostProcess(InferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs)
         {
             extraOutputs = null;
@@ -102,7 +101,7 @@ namespace LLama
             {
                 if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
                 {
-                    string last_output = "";
+                    var last_output = "";
                     foreach (var id in _last_n_tokens)
                     {
                         last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id), _model.Encoding);
@@ -113,21 +112,21 @@ namespace LLama
                         if (last_output.EndsWith(antiprompt))
                         {
                             args.WaitForInput = true;
-                            return true;
+                            break;
                         }
                     }
                 }
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
                 {
-                    extraOutputs = new string[] { "\n> " };
                     return true;
                 }
             }
 
             if (_embeds.Count > 0 && _embeds.Last() == NativeApi.llama_token_eos())
             {
-                args.WaitForInput = true;
+                extraOutputs = new string[] { " [end of text]\n" };
+                return true;
             }
 
             if (args.RemainedTokens <= 0 && inferenceParams.MaxTokens != -1)
@@ -137,6 +136,7 @@ namespace LLama
             }
             return false;
         }
+
         protected override void InferInternal(InferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embeds.Count > 0)
@@ -178,6 +178,16 @@ namespace LLama
 
                 _last_n_tokens.Enqueue(id);
 
+                if (id == NativeApi.llama_token_eos())
+                {
+                    id = _llama_token_newline.First();
+                    if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
+                    {
+                        var first_antiprompt = _model.Tokenize(args.Antiprompts[0], false);
+                        _embed_inps.AddRange(first_antiprompt);
+                    }
+                }
+
                 _embeds.Add(id);
 
                 args.RemainedTokens--;
@@ -197,14 +207,7 @@ namespace LLama
                 }
             }
         }
-        public class InstructExecutorState : ExecutorBaseState
-        {
-            [JsonPropertyName("is_prompt_run")]
-            public bool IsPromptRun { get; set; }
-            [JsonPropertyName("inp_pfx")]
-            public llama_token[] InputPrefixTokens { get; set; }
-            [JsonPropertyName("inp_sfx")]
-            public llama_token[] InputSuffixTokens { get; set; }
-        }
+
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using LLama;
 using LLama.Common;
 using LLama.Examples;
+using LLama.Executors.Stateful;
 using LLama.Transformations;
 
 Console.WriteLine("======================================================================================================");

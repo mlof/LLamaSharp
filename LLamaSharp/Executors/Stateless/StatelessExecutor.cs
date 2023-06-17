@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace LLama
+namespace LLama.Executors.Stateless
 {
     using llama_token = Int32;
     /// <summary>
@@ -29,26 +29,26 @@ namespace LLama
         public IEnumerable<string> Infer(string text, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            int n_past = 1;
-            if(inferenceParams is null)
+            var n_past = 1;
+            if (inferenceParams is null)
             {
                 inferenceParams = new InferenceParams();
             }
             List<llama_token> lastTokens = new(inferenceParams.RepeatLastTokensCount);
-            for(int i = 0; i < lastTokens.Count; i++)
+            for (var i = 0; i < lastTokens.Count; i++)
             {
                 lastTokens[i] = 0;
             }
-            List<llama_token> tokens = _model.Tokenize(text, true).ToList();
-            int n_prompt_tokens = tokens.Count;
+            var tokens = _model.Tokenize(text, true).ToList();
+            var n_prompt_tokens = tokens.Count;
 
             Utils.Eval(_model.NativeHandle, tokens.ToArray(), 0, n_prompt_tokens, n_past, _model.Params.Threads);
 
             lastTokens.AddRange(tokens);
             n_past += n_prompt_tokens;
 
-            int max_tokens = inferenceParams.MaxTokens < 0 ? int.MaxValue : inferenceParams.MaxTokens;
-            for(int i = 0; i < max_tokens; i++)
+            var max_tokens = inferenceParams.MaxTokens < 0 ? int.MaxValue : inferenceParams.MaxTokens;
+            for (var i = 0; i < max_tokens; i++)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -65,7 +65,7 @@ namespace LLama
 
                 lastTokens.Add(id);
 
-                string response = Utils.TokenToString(id, _model.NativeHandle, _model.Encoding);
+                var response = Utils.TokenToString(id, _model.NativeHandle, _model.Encoding);
                 yield return response;
 
                 tokens.Clear();
@@ -73,13 +73,13 @@ namespace LLama
 
                 if (inferenceParams.AntiPrompts is not null && inferenceParams.AntiPrompts.Count() > 0)
                 {
-                    string last_output = "";
+                    var last_output = "";
                     foreach (var token in lastTokens)
                     {
                         last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id), _model.Encoding);
                     }
 
-                    bool should_break = false;
+                    var should_break = false;
                     foreach (var antiprompt in inferenceParams.AntiPrompts)
                     {
                         if (last_output.EndsWith(antiprompt))
@@ -97,7 +97,7 @@ namespace LLama
                 // when run out of context
                 if (n_past + tokens.Count > _model.ContextSize)
                 {
-                    int n_left = n_past - inferenceParams.TokensKeep;
+                    var n_left = n_past - inferenceParams.TokensKeep;
 
                     n_past = Math.Max(1, inferenceParams.TokensKeep);
 
