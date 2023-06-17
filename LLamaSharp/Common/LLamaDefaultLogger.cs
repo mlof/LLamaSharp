@@ -5,24 +5,6 @@ using static LLama.Common.ILLamaLogger;
 
 namespace LLama.Common;
 
-public interface ILLamaLogger
-{
-    public enum LogLevel
-    {
-        Info,
-        Debug,
-        Warning,
-        Error
-    }
-    /// <summary>
-    /// Write the log in cosutomized way
-    /// </summary>
-    /// <param name="source">The source of the log. It may be a method name or class name.</param>
-    /// <param name="message">The message.</param>
-    /// <param name="level">The log level.</param>
-    void Log(string source, string message, LogLevel level);
-}
-
 /// <summary>
 /// The default logger of LLamaSharp. On default it write to console. User methods of `LLamaLogger.Default` to change the behavior.
 /// It's more recommended to inherit `ILLamaLogger` to cosutomize the behavior.

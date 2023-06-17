@@ -21,12 +21,4 @@ namespace LLama.Native
             this.sorted = sorted;
         }
     }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct LLamaTokenDataArrayNative
-    {
-        public IntPtr data;
-        public ulong size;
-        public bool sorted;
-    }
 }
