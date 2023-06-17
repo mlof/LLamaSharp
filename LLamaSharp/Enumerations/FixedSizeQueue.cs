@@ -32,7 +32,7 @@ namespace LLama.Enumerations
             _maxSize = size;
             if(data.Count() > size)
             {
-                throw new ArgumentException($"The max size set for the quene is {size}, but got {data.Count()} initial values.");
+                throw new ArgumentException($"The max size set for the queue is {size}, but got {data.Count()} initial values.");
             }
             _storage = new(data);
         }
@@ -47,7 +47,7 @@ namespace LLama.Enumerations
         }
 
         /// <summary>
-        /// Enquene an element.
+        /// Enqueue an element.
         /// </summary>
         /// <returns></returns>
         public void Enqueue(T item)
