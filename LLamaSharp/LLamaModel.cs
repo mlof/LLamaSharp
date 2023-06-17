@@ -6,8 +6,8 @@ using System.Text;
 using LLama.Common;
 using LLama.Exceptions;
 using LLama.Extensions;
-using LLama.Logging.Abstractions;
 using LLama.Native;
+using Microsoft.Extensions.Logging;
 
 namespace LLama
 {
@@ -16,15 +16,14 @@ namespace LLama
     public class LLamaModel : IDisposable
     {
         // TODO: expose more properties.
-        private readonly ILLamaLogger? _logger;
+        private readonly ILogger? _logger;
 
-        public LLamaModel(ModelParams Params, string encoding = "UTF-8", ILLamaLogger? logger = null)
+        public LLamaModel(ModelParams Params, string encoding = "UTF-8", ILogger? logger = null)
         {
             _logger = logger;
             this.Params = Params;
             Encoding = Encoding.GetEncoding(encoding);
-            _logger?.Log(nameof(LLamaModel), $"Initializing LLama model with params: {this.Params}",
-                ILLamaLogger.LogLevel.Info);
+            _logger?.LogInformation($"Initializing LLama model with params: {this.Params}");
             NativeHandle = Utils.InitLLamaContextFromModelParams(this.Params);
             ContextSize = NativeApi.llama_n_ctx(NativeHandle);
         }
@@ -223,7 +222,7 @@ namespace LLama
 
                 if (Utils.Eval(NativeHandle, tokens, i, n_eval, pastTokensCount, Params.Threads) != 0)
                 {
-                    _logger?.Log(nameof(LLamaModel), "Failed to eval.", ILLamaLogger.LogLevel.Error);
+                    _logger?.LogError("Failed to eval.");
                     throw new RuntimeError("Failed to eval.");
                 }
 

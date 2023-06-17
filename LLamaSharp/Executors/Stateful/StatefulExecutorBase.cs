@@ -8,8 +8,8 @@ using LLama.Abstractions;
 using LLama.Common;
 using LLama.Enumerations;
 using LLama.Exceptions;
-using LLama.Logging.Abstractions;
 using LLama.Native;
+using Microsoft.Extensions.Logging;
 
 namespace LLama.Executors.Stateful
 {
@@ -22,14 +22,14 @@ namespace LLama.Executors.Stateful
         protected List<llama_token> _embed_inps = new();
         protected List<llama_token> _embeds = new(); // embd
         protected FixedSizeQueue<llama_token> _last_n_tokens;
-        protected ILLamaLogger? _logger;
+        protected ILogger? _logger;
         protected int _n_matching_session_tokens;
         protected int _n_session_consumed;
         protected int _pastTokensCount; // n_past
         protected string? _pathSession;
         protected List<llama_token> _session_tokens = new();
 
-        protected StatefulExecutorBase(LLamaModel model, ILLamaLogger? logger = null)
+        protected StatefulExecutorBase(LLamaModel model, ILogger? logger = null)
         {
             _model = model;
             _logger = logger;
@@ -117,26 +117,22 @@ namespace LLama.Executors.Stateful
 
             if (File.Exists(filename))
             {
-                _logger?.Log("LLamaExecutor", $"Attempting to load saved session from {filename}",
-                    ILLamaLogger.LogLevel.Info);
+                _logger?.LogInformation($"Attempting to load saved session from {filename}");
                 var session_tokens = new llama_token[_model.ContextSize];
                 ulong n_token_count_out = 0;
                 if (!NativeApi.llama_load_session_file(_model.NativeHandle, _pathSession, session_tokens,
                         (ulong)_model.ContextSize, &n_token_count_out))
                 {
-                    _logger?.Log("LLamaExecutor", $"Failed to load session file {filename}",
-                        ILLamaLogger.LogLevel.Error);
+                    _logger?.LogError($"Failed to load session file {filename}");
                     throw new RuntimeError($"Failed to load session file {_pathSession}");
                 }
 
                 _session_tokens = session_tokens.Take((int)n_token_count_out).ToList();
-                _logger?.Log("LLamaExecutor", $"Loaded a session with prompt size of {session_tokens.Length} tokens",
-                    ILLamaLogger.LogLevel.Info);
+                _logger?.LogInformation($"Loaded a session with prompt size of {session_tokens.Length} tokens");
             }
             else
             {
-                _logger?.Log("LLamaExecutor", "Session file does not exist, will create",
-                    ILLamaLogger.LogLevel.Warning);
+                _logger?.LogWarning("Session file does not exist, will create");
             }
 
             _n_matching_session_tokens = 0;
@@ -155,19 +151,18 @@ namespace LLama.Executors.Stateful
 
                 if (_n_matching_session_tokens >= _embed_inps.Count)
                 {
-                    _logger?.Log("LLamaExecutor", "Session file has exact match for prompt!",
-                        ILLamaLogger.LogLevel.Info);
+                    _logger?.LogInformation("Session file has exact match for prompt!");
                 }
                 else if (_n_matching_session_tokens < _embed_inps.Count / 2)
                 {
-                    _logger?.Log("LLamaExecutor",
+                    _logger?.LogWarning(
                         $"session file has low similarity to prompt ({_n_matching_session_tokens}" +
-                        $" / {_embed_inps.Count} tokens); will mostly be reevaluated", ILLamaLogger.LogLevel.Warning);
+                        $" / {_embed_inps.Count} tokens); will mostly be reevaluated");
                 }
                 else
                 {
-                    _logger?.Log("LLamaExecutor", $"Session file matches {_n_matching_session_tokens} / " +
-                                                  $"{_embed_inps.Count} tokens of prompt", ILLamaLogger.LogLevel.Info);
+                    _logger?.LogInformation( $"Session file matches {_n_matching_session_tokens} / " +
+                                                  $"{_embed_inps.Count} tokens of prompt");
                 }
             }
 
